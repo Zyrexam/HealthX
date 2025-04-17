@@ -1,0 +1,130 @@
+{
+  "project_info": {
+    "project_number": "845748176892",
+    "firebase_url": "https://authentication-app-cdcc6-default-rtdb.firebaseio.com",
+    "project_id": "authentication-app-cdcc6",
+    "storage_bucket": "authentication-app-cdcc6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845748176892:android:5051137004ae2ea3f09479",
+        "android_client_info": {
+          "package_name": "com.example.authenticationapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845748176892-aau2mufiptiq7g76e1frl560o1475flf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.authenticationapp",
+            "certificate_hash": "888cedee5b430e9954fd0021b4424b6818abc4e9"
+          }
+        },
+        {
+          "client_id": "845748176892-16n2fttmjlbroonpfng6p8738luhln1n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDUk6He6TSmyTixhjA_nc9Li7JXQex9bI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845748176892-16n2fttmjlbroonpfng6p8738luhln1n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845748176892:android:99712e7ef5a81893f09479",
+        "android_client_info": {
+          "package_name": "com.example.bubu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845748176892-1p5renlbb84n4mvi8c93hb97m5o2ovtb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bubu",
+            "certificate_hash": "eb0b5c15d83bb7a887e017bd1df54f0076b5695f"
+          }
+        },
+        {
+          "client_id": "845748176892-gqsiqquot50cm9jdekd796fpfvp1iqur.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bubu",
+            "certificate_hash": "888cedee5b430e9954fd0021b4424b6818abc4e9"
+          }
+        },
+        {
+          "client_id": "845748176892-16n2fttmjlbroonpfng6p8738luhln1n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDUk6He6TSmyTixhjA_nc9Li7JXQex9bI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845748176892-16n2fttmjlbroonpfng6p8738luhln1n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845748176892:android:9cb2e4c531626b27f09479",
+        "android_client_info": {
+          "package_name": "com.example.skylearns"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845748176892-vr7nqpvr5glal46gupmjr7j995akjh2b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.skylearns",
+            "certificate_hash": "888cedee5b430e9954fd0021b4424b6818abc4e9"
+          }
+        },
+        {
+          "client_id": "845748176892-16n2fttmjlbroonpfng6p8738luhln1n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDUk6He6TSmyTixhjA_nc9Li7JXQex9bI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845748176892-16n2fttmjlbroonpfng6p8738luhln1n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
