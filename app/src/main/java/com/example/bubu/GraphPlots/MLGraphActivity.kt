@@ -43,11 +43,22 @@ class MlGraphActivity : AppCompatActivity() {
         TFLiteModelHelper.loadScaler(this)
 
         // Ensure the model is loaded before using interpreter
+//        try {
+//            interpreter = TFLiteModelHelper.fetchInterpreter() // Fetch after model load
+//        } catch (e: Exception) {
+//            Log.e("MlGraphActivity", "Interpreter not initialized: ${e.message}")
+//            resultTextView.text = "Interpreter not initialized. Try again."
+//            return
+//        }
+
         try {
-            interpreter = TFLiteModelHelper.fetchInterpreter() // Fetch after model load
+            TFLiteModelHelper.loadModel(this)
+            TFLiteModelHelper.loadScaler(this)
+            interpreter = TFLiteModelHelper.fetchInterpreter()
+            Log.d("MlGraphActivity", "Interpreter is ready")
         } catch (e: Exception) {
-            Log.e("MlGraphActivity", "Interpreter not initialized: ${e.message}")
-            resultTextView.text = "Interpreter not initialized. Try again."
+            Log.e("MlGraphActivity", "Initialization failed", e)
+            resultTextView.text = "Init error: ${e.message}"
             return
         }
 

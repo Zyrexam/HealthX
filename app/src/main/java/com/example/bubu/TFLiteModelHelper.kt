@@ -1,6 +1,7 @@
 package com.example.bubu
 
 import android.content.Context
+import android.util.Log
 import org.json.JSONObject
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
@@ -13,24 +14,22 @@ object TFLiteModelHelper {
     private lateinit var meanValues: FloatArray
     private lateinit var stdValues: FloatArray
 
+
     fun loadModel(context: Context) {
-        try {
-            val modelFile = "lstm_model.tflite"
-            val fileDescriptor = context.assets.openFd(modelFile)
-            val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
-            val fileChannel = inputStream.channel
-            val startOffset = fileDescriptor.startOffset
-            val declaredLength = fileDescriptor.declaredLength
-            val modelBuffer = fileChannel.map(
+        // 1. List assets so you can confirm your `.tflite` is actually packaged
+        val assetList = context.assets.list("")?.joinToString() ?: "(none)"
+        Log.d("TFLiteModelHelper", "Assets in /assets/: $assetList")
+
+        // 2. Load the model — let it throw if something’s really wrong
+        val fd = context.assets.openFd("lstm_model.tflite")
+        FileInputStream(fd.fileDescriptor).channel.use { channel ->
+            val buffer = channel.map(
                 FileChannel.MapMode.READ_ONLY,
-                startOffset,
-                declaredLength
+                fd.startOffset,
+                fd.declaredLength
             )
-
-            interpreter = Interpreter(modelBuffer)
-
-        } catch (e: Exception) {
-            e.printStackTrace()
+            interpreter = Interpreter(buffer)
+            Log.d("TFLiteModelHelper", "✅ Interpreter initialized")
         }
     }
 
@@ -40,7 +39,6 @@ object TFLiteModelHelper {
         }
         return interpreter
     }
-
 
     fun loadScaler(context: Context) {
         try {
@@ -76,3 +74,36 @@ object TFLiteModelHelper {
         }
     }
 }
+
+
+
+
+//
+//    fun loadModel(context: Context) {
+//        try {
+//            val modelFile = "lstm_model.tflite"
+//            val fileDescriptor = context.assets.openFd(modelFile)
+//            val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
+//            val fileChannel = inputStream.channel
+//            val startOffset = fileDescriptor.startOffset
+//            val declaredLength = fileDescriptor.declaredLength
+//            val modelBuffer = fileChannel.map(
+//                FileChannel.MapMode.READ_ONLY,
+//                startOffset,
+//                declaredLength
+//            )
+//
+//            interpreter = Interpreter(modelBuffer)
+//
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
+//
+//    fun fetchInterpreter(): Interpreter {
+//        if (!::interpreter.isInitialized) {
+//            throw IllegalStateException("Interpreter not initialized. Call loadModel(context) first.")
+//        }
+//        return interpreter
+//    }
+//

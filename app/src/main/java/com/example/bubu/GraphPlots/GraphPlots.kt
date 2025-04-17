@@ -1,7 +1,6 @@
-package com.example.bubu
+package com.example.bubu.GraphPlots
 
 import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.graphics.Color
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -10,10 +9,12 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.TextView
+import com.example.bubu.R
+import com.example.bubu.dataClass
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import kotlin.math. abs
+import kotlin.math.abs
 
 
 class graphPlots : AppCompatActivity() {
@@ -170,7 +171,7 @@ class graphPlots : AppCompatActivity() {
 
     }
 
-    fun findContinuousIntervalsWithSameMaxDimension(maxMeasurements: List<Triple<Double, String, Double>>): List<List<Any>> {
+    private fun findContinuousIntervalsWithSameMaxDimension(maxMeasurements: List<Triple<Double, String, Double>>): List<List<Any>> {
         // Result list to store the intervals
         val intervals = mutableListOf<List<Any>>()
 
@@ -214,18 +215,11 @@ class graphPlots : AppCompatActivity() {
             val adjustedTime = measurement.tAndroid / 1_000_000_000.0
 
             // Determine the maximum value and its dimension, with a sign adjustment for negative values
-//            val maxInfo = listOf(
-//                Triple("x", measurement.x, measurement.x.absoluteValue),
-//                Triple("y", measurement.y, measurement.y.absoluteValue),
-//                Triple("z", measurement.z, measurement.z.absoluteValue)
-//            ).maxByOrNull { it.third }!!
-
             val maxInfo = listOf(
                 Triple("x", measurement.x, abs(measurement.x)),
                 Triple("y", measurement.y, abs(measurement.y)),
                 Triple("z", measurement.z, abs(measurement.z))
             ).maxByOrNull { it.third }!!
-
 
             // Determine the dimension string, including the negative sign if applicable
             val dimensionWithSign = if (maxInfo.second < 0) "-${maxInfo.first}" else maxInfo.first
