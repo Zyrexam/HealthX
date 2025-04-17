@@ -1,20 +1,23 @@
 package com.example.bubu.GraphPlots
 
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.bubu.R
 import com.example.bubu.TFLiteModelHelper
 import org.tensorflow.lite.Interpreter
 import java.io.BufferedReader
 import java.io.InputStreamReader
+
+
 class MlGraphActivity : AppCompatActivity() {
 
     private lateinit var resultTextView: TextView
     private lateinit var rawDataText: TextView
-    private lateinit var interpreter: Interpreter // Declare here
+    private lateinit var interpreter: Interpreter
+    private lateinit var tfHelper: TFLiteModelHelper
 
     private val activityMap = mapOf(
         0 to "sitting_dc",
@@ -38,40 +41,38 @@ class MlGraphActivity : AppCompatActivity() {
         resultTextView = findViewById(R.id.resultTextView)
         rawDataText = findViewById(R.id.rawDataText)
 
-        // Load model and scaler asynchronously, then proceed
-        TFLiteModelHelper.loadModel(this)
-        TFLiteModelHelper.loadScaler(this)
-
-        // Ensure the model is loaded before using interpreter
-//        try {
-//            interpreter = TFLiteModelHelper.fetchInterpreter() // Fetch after model load
-//        } catch (e: Exception) {
-//            Log.e("MlGraphActivity", "Interpreter not initialized: ${e.message}")
-//            resultTextView.text = "Interpreter not initialized. Try again."
-//            return
-//        }
+        tfHelper = TFLiteModelHelper(this)
 
         try {
-            TFLiteModelHelper.loadModel(this)
-            TFLiteModelHelper.loadScaler(this)
-            interpreter = TFLiteModelHelper.fetchInterpreter()
+            // Load model and scaler
+            tfHelper.loadModel()
+            tfHelper.loadScaler()
+
+            // Fetch interpreter after model is loaded
+            interpreter = tfHelper.fetchInterpreter()
+
             Log.d("MlGraphActivity", "Interpreter is ready")
         } catch (e: Exception) {
-            Log.e("MlGraphActivity", "Initialization failed", e)
-            resultTextView.text = "Init error: ${e.message}"
+            Log.e("MlGraphActivity", "Initialization failed: ${e.localizedMessage}", e)
+            resultTextView.text = "Model Initialization Failed:\n${Log.getStackTraceString(e)}"
             return
         }
 
-        val uriString = intent.getStringExtra("URI") ?: return
+        // Retrieve URI from intent
+        val uriString = intent.getStringExtra("URI")
+        if (uriString == null) {
+            resultTextView.text = "No CSV file provided."
+            return
+        }
+
         val uri = Uri.parse(uriString)
+        Log.d("MlGraphActivity", "CSV URI: $uri")
 
-        // Log URI for debugging
-        Log.d("MlGraphActivity", "URI: $uri")
-
+        // Load and preprocess CSV
         val (inputData, rawPreviewText) = loadAndPreprocessCsv(uri)
-
         rawDataText.text = rawPreviewText
 
+        // Run inference if data was successfully loaded
         if (inputData.isNotEmpty()) {
             val predictedIndex = runInference(inputData)
             val predictedActivity = activityMap[predictedIndex] ?: "Unknown"
@@ -82,8 +83,12 @@ class MlGraphActivity : AppCompatActivity() {
     }
 
 
+
     private fun loadAndPreprocessCsv(uri: Uri): Pair<Array<FloatArray>, String> {
-        val inputStream = contentResolver.openInputStream(uri) ?: return Pair(emptyArray(), "Failed to open file.")
+        val inputStream = contentResolver.openInputStream(uri) ?: return Pair(
+            emptyArray(),
+            "Failed to open file."
+        )
         val reader = BufferedReader(InputStreamReader(inputStream))
         val processedData = mutableListOf<FloatArray>()
         val rawText = StringBuilder()
@@ -101,7 +106,7 @@ class MlGraphActivity : AppCompatActivity() {
             if (parts.size == 12) {
                 try {
                     val floatRow = parts.map { it.toFloat() }
-                    val standardizedRow = TFLiteModelHelper.standardizeRow(floatRow)
+                    val standardizedRow = tfHelper.standardizeRow(floatRow)
                     processedData.add(standardizedRow)
 
                     // Add preview (first 5 lines)
@@ -120,10 +125,15 @@ class MlGraphActivity : AppCompatActivity() {
 
     private fun runInference(inputData: Array<FloatArray>): Int {
         val input = arrayOf(inputData) // Shape: [1, N, 12]
-        val output = Array(1) { FloatArray(1) } // Output: [1, 1]
-
+        // Allocate space for 12 probabilities
+        val output = Array(1) { FloatArray(12) }
         interpreter.run(input, output)
 
-        return output[0][0].toInt()
+
+        val probs = output[0]
+        val predictedIndex = probs.indices.maxByOrNull { probs[it] } ?: -1
+
+        return predictedIndex
     }
+
 }

@@ -5,42 +5,55 @@ import android.util.Log
 import org.json.JSONObject
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
-
 import java.io.InputStreamReader
 import java.nio.channels.FileChannel
+import org.tensorflow.lite.flex.FlexDelegate
 
-object TFLiteModelHelper {
-    lateinit var interpreter: Interpreter
+class TFLiteModelHelper(private val context: Context) {
+
     private lateinit var meanValues: FloatArray
     private lateinit var stdValues: FloatArray
+    private lateinit var interpreter: Interpreter
 
+    fun loadModel() {
+        try {
+            Log.d("TFLiteModelHelper", "Trying to load model...")
 
-    fun loadModel(context: Context) {
-        // 1. List assets so you can confirm your `.tflite` is actually packaged
-        val assetList = context.assets.list("")?.joinToString() ?: "(none)"
-        Log.d("TFLiteModelHelper", "Assets in /assets/: $assetList")
+            val assetManager = context.assets
+            val modelDescriptor = assetManager.openFd("lstm_model.tflite")
+            Log.d("TFLiteModelHelper", "Model file descriptor obtained")
 
-        // 2. Load the model — let it throw if something’s really wrong
-        val fd = context.assets.openFd("lstm_model.tflite")
-        FileInputStream(fd.fileDescriptor).channel.use { channel ->
-            val buffer = channel.map(
+            val model = FileInputStream(modelDescriptor.fileDescriptor).channel.map(
                 FileChannel.MapMode.READ_ONLY,
-                fd.startOffset,
-                fd.declaredLength
+                modelDescriptor.startOffset,
+                modelDescriptor.declaredLength
             )
-            interpreter = Interpreter(buffer)
-            Log.d("TFLiteModelHelper", "✅ Interpreter initialized")
+
+            val options = Interpreter.Options().apply {
+                addDelegate(FlexDelegate())
+            }
+
+
+//            val options = Interpreter.Options()
+            interpreter = Interpreter(model, options)
+
+
+            Log.d("TFLiteModelHelper", "Model loaded successfully")
+
+        } catch (e: Exception) {
+            Log.e("TFLiteModelHelper", "loadModel() failed: ${e.localizedMessage}", e)
+            throw RuntimeException("Failed to load TFLite model: ${e.message}")
         }
     }
 
     fun fetchInterpreter(): Interpreter {
         if (!::interpreter.isInitialized) {
-            throw IllegalStateException("Interpreter not initialized. Call loadModel(context) first.")
+            throw IllegalStateException("Interpreter not initialized. Call loadModel() first.")
         }
         return interpreter
     }
 
-    fun loadScaler(context: Context) {
+    fun loadScaler() {
         try {
             val scalerFile = "scaler.json"
             context.assets.open(scalerFile).use { stream ->
@@ -66,7 +79,7 @@ object TFLiteModelHelper {
 
     fun standardizeRow(row: List<Float>): FloatArray {
         if (!::meanValues.isInitialized || !::stdValues.isInitialized) {
-            throw IllegalStateException("Scaler not initialized. Call loadScaler(context) first.")
+            throw IllegalStateException("Scaler not initialized. Call loadScaler() first.")
         }
 
         return FloatArray(row.size) { i ->
@@ -75,35 +88,3 @@ object TFLiteModelHelper {
     }
 }
 
-
-
-
-//
-//    fun loadModel(context: Context) {
-//        try {
-//            val modelFile = "lstm_model.tflite"
-//            val fileDescriptor = context.assets.openFd(modelFile)
-//            val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
-//            val fileChannel = inputStream.channel
-//            val startOffset = fileDescriptor.startOffset
-//            val declaredLength = fileDescriptor.declaredLength
-//            val modelBuffer = fileChannel.map(
-//                FileChannel.MapMode.READ_ONLY,
-//                startOffset,
-//                declaredLength
-//            )
-//
-//            interpreter = Interpreter(modelBuffer)
-//
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-//    }
-//
-//    fun fetchInterpreter(): Interpreter {
-//        if (!::interpreter.isInitialized) {
-//            throw IllegalStateException("Interpreter not initialized. Call loadModel(context) first.")
-//        }
-//        return interpreter
-//    }
-//
