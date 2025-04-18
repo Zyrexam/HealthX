@@ -43,6 +43,8 @@ class MlGraphActivity : AppCompatActivity() {
 
         tfHelper = TFLiteModelHelper(this)
 
+
+
         try {
             // Load model and scaler
             tfHelper.loadModel()
@@ -80,8 +82,9 @@ class MlGraphActivity : AppCompatActivity() {
         } else {
             resultTextView.text = "Failed to load or process CSV"
         }
-    }
 
+
+    }
 
 
     private fun loadAndPreprocessCsv(uri: Uri): Pair<Array<FloatArray>, String> {
@@ -98,7 +101,11 @@ class MlGraphActivity : AppCompatActivity() {
             return Pair(emptyArray(), "CSV file is empty.")
         }
 
-        rawText.append("CSV Header:\n$line\n\n")
+        val headers = line.split(",")
+        rawText.append("CSV Preview (first 5 rows):\n\n")
+        rawText.append(headers.joinToString(" | ") { it.trim().padEnd(8) })
+        rawText.append("\n" + "-".repeat(headers.size * 10) + "\n")
+
         var count = 0
 
         reader.forEachLine {
@@ -109,9 +116,8 @@ class MlGraphActivity : AppCompatActivity() {
                     val standardizedRow = tfHelper.standardizeRow(floatRow)
                     processedData.add(standardizedRow)
 
-                    // Add preview (first 5 lines)
                     if (count < 5) {
-                        rawText.append("Row ${count + 1}: $it\n")
+                        rawText.append(parts.joinToString(" | ") { it.trim().padEnd(8) } + "\n")
                     }
                     count++
                 } catch (e: Exception) {
@@ -122,6 +128,49 @@ class MlGraphActivity : AppCompatActivity() {
 
         return Pair(processedData.toTypedArray(), rawText.toString())
     }
+
+
+//    private fun loadAndPreprocessCsv(uri: Uri): Pair<Array<FloatArray>, String> {
+//        val inputStream = contentResolver.openInputStream(uri) ?: return Pair(
+//            emptyArray(),
+//            "Failed to open file."
+//        )
+//        val reader = BufferedReader(InputStreamReader(inputStream))
+//        val processedData = mutableListOf<FloatArray>()
+//        val rawText = StringBuilder()
+//
+//        var line = reader.readLine()
+//
+//
+//
+//        if (line == null) {
+//            return Pair(emptyArray(), "CSV file is empty.")
+//        }
+//
+//        rawText.append("CSV Header:\n$line\n\n")
+//        var count = 0
+//
+//        reader.forEachLine {
+//            val parts = it.split(",")
+//            if (parts.size == 12) {
+//                try {
+//                    val floatRow = parts.map { it.toFloat() }
+//                    val standardizedRow = tfHelper.standardizeRow(floatRow)
+//                    processedData.add(standardizedRow)
+//
+//                    // Add preview (first 5 lines)
+//                    if (count < 5) {
+//                        rawText.append("Row ${count + 1}: $it\n")
+//                    }
+//                    count++
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//            }
+//        }
+//
+//        return Pair(processedData.toTypedArray(), rawText.toString())
+//    }
 
     private fun runInference(inputData: Array<FloatArray>): Int {
         val input = arrayOf(inputData) // Shape: [1, N, 12]
@@ -135,5 +184,15 @@ class MlGraphActivity : AppCompatActivity() {
 
         return predictedIndex
     }
+
+
+
+//    private fun showActivitySummary(predictions: List<String>) {
+//        val summaryView = findViewById<TextView>(R.id.activitySummary)
+//        val counts = predictions.groupingBy { it }.eachCount()
+//        val summary = counts.entries.joinToString("\n") { "${it.key}: ${it.value} times" }
+//        summaryView.text = "Activity Summary:\n$summary"
+//    }
+
 
 }
